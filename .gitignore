@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Frontend build
+frontend/dist/
+frontend/.vite-cache/
+
+# Backend storage
+backend/storage/
+backend/bootstrap/cache/
+backend/public/storage
+
+# Database
+database/backups/*.sql
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+Thumbs.db
+.Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Deployment
+deployment/.env
+
+# UI Design (optional)
+ui-design/node_modules/
+ui-design/.cache/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
