@@ -1,50 +1,34 @@
-import axios from 'axios'
+import api from '../api'
+import { authService } from '../authService'
+import { publicService } from '../publicService'
+import { adminService } from '../adminService'
+import { uploadService } from '../uploadService'
 
-const API_URL = 'http://localhost:8000/api'
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-export const authService = {
-  login: (email, password) => api.post('/login', { email, password }),
-  logout: () => api.post('/logout'),
-  me: () => api.get('/me'),
-}
+export { authService, publicService, adminService, uploadService }
 
 export const programService = {
-  getAll: () => api.get('/programs'),
-  get: (id) => api.get(`/programs/${id}`),
-  create: (data) => api.post('/programs', data),
-  update: (id, data) => api.put(`/programs/${id}`, data),
-  delete: (id) => api.delete(`/programs/${id}`),
+  getAll: publicService.programs,
+  getFeatured: publicService.featuredPrograms,
+  get: publicService.program,
+  adminAll: adminService.programs,
+  create: adminService.createProgram,
+  update: adminService.updateProgram,
+  delete: adminService.deleteProgram,
 }
 
 export const galleryService = {
-  getAll: () => api.get('/galleries'),
-  get: (id) => api.get(`/galleries/${id}`),
-  create: (data) => api.post('/galleries', data),
-  update: (id, data) => api.put(`/galleries/${id}`, data),
-  delete: (id) => api.delete(`/galleries/${id}`),
+  getAll: publicService.galleries,
+  adminAll: adminService.galleries,
+  create: adminService.createGallery,
+  update: adminService.updateGallery,
+  delete: adminService.deleteGallery,
 }
 
 export const contactService = {
-  create: (data) => api.post('/contacts', data),
-  getAll: () => api.get('/contacts'),
-  get: (id) => api.get(`/contacts/${id}`),
-  update: (id, data) => api.put(`/contacts/${id}`, data),
-  delete: (id) => api.delete(`/contacts/${id}`),
+  create: publicService.createContactMessage,
+  getAll: adminService.messages,
+  update: adminService.updateMessage,
+  delete: adminService.deleteMessage,
 }
 
 export default api

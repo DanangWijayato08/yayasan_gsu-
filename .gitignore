@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 vendor/
-composer.lock
 
 # Environment variables
 .env
@@ -21,6 +20,7 @@ composer.lock
 # Frontend build
 frontend/dist/
 frontend/.vite-cache/
+.vite/
 
 # Backend storage
 backend/storage/
@@ -66,3 +66,9 @@ coverage/
 # Build artifacts
 dist/
 build/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+

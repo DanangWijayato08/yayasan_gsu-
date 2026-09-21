@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { authService } from '../services/api/client'
+import { authService } from '../services/authService'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -13,24 +13,15 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(email, password) {
     isLoading.value = true
     error.value = null
-    
-    console.log('Auth store login called with:', { email, password: '***' })
-    
     try {
-      console.log('Sending login request to API...')
       const response = await authService.login(email, password)
-      console.log('Login response:', response.data)
       
       token.value = response.data.token
       user.value = response.data.user
       localStorage.setItem('auth_token', token.value)
       
-      console.log('Token stored:', token.value)
       return true
     } catch (err) {
-      console.error('Login error full:', err)
-      console.error('Error response:', err.response)
-      
       if (err.response?.data?.message) {
         error.value = err.response.data.message
       } else if (err.response?.data?.errors) {
@@ -41,8 +32,6 @@ export const useAuthStore = defineStore('auth', () => {
       } else {
         error.value = err.message || 'Login gagal. Cek koneksi API.'
       }
-      
-      console.log('Final error message:', error.value)
       return false
     } finally {
       isLoading.value = false
@@ -53,7 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authService.logout()
     } catch (err) {
-      console.error(err)
+      // Continue local logout even when the token is already expired server-side.
     } finally {
       token.value = null
       user.value = null

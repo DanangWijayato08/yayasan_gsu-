@@ -14,12 +14,17 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
+            $table->string('slug')->unique();
             $table->string('category');
-            $table->integer('collected')->default(0);
-            $table->integer('target')->default(0);
+            $table->text('short_description')->nullable();
+            $table->text('description');
             $table->string('image')->nullable();
-            $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('target_amount')->default(0);
+            $table->unsignedBigInteger('collected_amount')->default(0);
+            $table->unsignedInteger('beneficiaries_count')->default(0);
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
         });
     }

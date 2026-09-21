@@ -17,7 +17,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image');
             $table->string('category')->nullable();
-            $table->boolean('active')->default(true);
+            $table->date('activity_date')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
         });
     }

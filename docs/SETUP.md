@@ -1,246 +1,178 @@
-# Setup Guide - GSU Website
+# Panduan Instalasi & Persiapan Lingkungan (Setup Guide)
 
-Panduan lengkap setup project Gerakan Sedekah Umat.
-
-## Prerequisites
-
-### System Requirements
-- Windows 10+ / macOS / Linux
-- 4GB RAM minimum
-- 10GB disk space
-
-### Software Requirements
-
-**Frontend:**
-- Node.js 16+ (download: https://nodejs.org/)
-- npm 8+ (comes with Node.js)
-
-**Backend:**
-- PHP 8.2+ (via Laragon recommended for Windows)
-- MySQL 8.0+
-- Composer (download: https://getcomposer.org/)
-
-**Tools:**
-- Git (download: https://git-scm.com/)
-- Postman atau Insomnia (untuk test API)
-- VS Code atau editor favorit
-
-## Installation
-
-### 1. Clone Repository
-
-```bash
-git clone <repository-url>
-cd GSU
-```
-
-### 2. Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install --legacy-peer-deps
-
-# Create environment file
-cp .env.example .env (jika ada)
-
-# Start development server
-npm run dev
-```
-
-**Frontend akan berjalan di:** http://localhost:5173
-
-### 3. Backend Setup
-
-```bash
-cd backend
-
-# Install dependencies
-composer install
-
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Setup database
-php artisan migrate
-php artisan db:seed
-
-# Start development server
-php artisan serve
-```
-
-**Backend akan berjalan di:** http://localhost:8000
-
-## Database Setup
-
-### Option 1: Laragon (Windows)
-
-1. Buka Laragon
-2. Klik "MySQL" untuk start MySQL
-3. Database otomatis dibuat saat migration
-
-### Option 2: Manual MySQL
-
-```bash
-# Login ke MySQL
-mysql -u root -p
-
-# Create database
-CREATE DATABASE gsu_api CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# Exit
-EXIT;
-```
-
-## Verifikasi Setup
-
-### Frontend
-- Buka http://localhost:5173
-- Seharusnya melihat website Gerakan Sedekah Umat
-- Menu tidak ada "Berita" (sudah dihapus)
-
-### Backend
-- Buka http://localhost:8000/api/programs
-- Seharusnya melihat JSON response dengan program list
-
-### API Test
-
-Login menggunakan Postman:
-
-```
-POST http://localhost:8000/api/login
-Content-Type: application/json
-
-{
-  "email": "admin@sedekahumat.org",
-  "password": "admin123456"
-}
-```
-
-Response akan berisi token untuk authenticated requests.
-
-## Environment Configuration
-
-### Frontend (.env)
-
-```
-VITE_API_URL=http://localhost:8000/api
-```
-
-### Backend (.env)
-
-```
-APP_NAME="GSU API"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=gsu_api
-DB_USERNAME=root
-DB_PASSWORD=
-
-SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173
-```
-
-## Running Both Services
-
-### Terminal 1 - Frontend
-```bash
-cd frontend
-npm run dev
-```
-
-### Terminal 2 - Backend
-```bash
-cd backend
-php artisan serve
-```
-
-Sekarang kedua service berjalan:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
-
-## Common Issues & Solutions
-
-### Issue: "npm ERR! peer dep missing"
-**Solution:**
-```bash
-npm install --legacy-peer-deps
-```
-
-### Issue: "MySQL connection refused"
-**Solution:**
-- Pastikan MySQL running di Laragon
-- Cek kredensial di .env
-- Buat database `gsu_api` jika belum ada
-
-### Issue: "CORS error"
-**Solution:**
-- Pastikan backend .env memiliki SANCTUM_STATEFUL_DOMAINS yang benar
-- Restart backend server
-
-### Issue: "Port 5173 atau 8000 sudah digunakan"
-**Solution:**
-```bash
-# Frontend (gunakan port lain)
-npm run dev -- --port 5174
-
-# Backend (gunakan port lain)
-php artisan serve --port 8001
-```
-
-## Database Seeding
-
-Reset database dengan data baru:
-
-```bash
-cd backend
-php artisan migrate:fresh --seed
-```
-
-Data yang akan di-seed:
-- 1 admin user
-- 3 sample programs
-- Database ready untuk development
-
-## Build for Production
-
-### Frontend
-```bash
-cd frontend
-npm run build
-```
-
-Output di: `frontend/dist/`
-
-### Backend
-```bash
-cd backend
-php artisan config:cache
-php artisan route:cache
-php artisan optimize
-```
-
-## Next Steps
-
-1. Baca `docs/ARCHITECTURE.md` untuk memahami struktur
-2. Baca `docs/API.md` untuk dokumentasi API
-3. Baca `backend/API_DOCS.md` untuk endpoint details
-4. Baca `docs/DEVELOPMENT.md` untuk workflow development
-
-## Support
-
-- Frontend issue: lihat `frontend/README.md`
-- Backend issue: lihat `backend/README.md`
-- API issue: lihat `backend/API_DOCS.md`
+Dokumen ini berisi panduan langkah demi langkah untuk menyiapkan dan menjalankan proyek **Website Yayasan Gerakan Sedekah Umat (GSU)** pada komputer pengembang lokal dari nol.
 
 ---
 
-**Happy Coding! 🚀**
+## 1. Prasyarat Sistem
+
+Sebelum memulai instalasi, pastikan perangkat Anda telah terpasang perangkat lunak berikut:
+
+### Kebutuhan Perangkat Lunak
+- **Sistem Operasi**: Windows 10/11 (dengan WSL 2 aktif), macOS, atau Linux Ubuntu 22.04+.
+- **Docker Desktop**: Versi terbaru dengan dukungan WSL 2 backend (untuk menjalankan database PostgreSQL dan Adminer secara terisolasi).
+- **Node.js**: Versi 18.x atau 20.x LTS (disertai `npm`). Unduh di [nodejs.org](https://nodejs.org/).
+- **PHP**: Versi 8.2 atau 8.3 dengan ekstensi aktif: `pdo_pgsql`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `curl`, `fileinfo`.
+- **Composer**: Manajer paket PHP versi 2.6+. Unduh di [getcomposer.org](https://getcomposer.org/).
+- **Git**: Untuk kontrol versi kode.
+
+---
+
+## 2. Langkah Instalasi
+
+### Langkah 1: Kloning Repositori
+Buka terminal (PowerShell / Command Prompt / Terminal) dan arahkan ke direktori kerja Anda:
+```powershell
+git clone <url-repositori-gsu>
+cd gsu-website
+```
+
+---
+
+### Langkah 2: Menyalakan Database PostgreSQL & Adminer (Docker)
+Proyek ini telah dilengkapi dengan konfigurasi `docker-compose.yml` untuk menyalakan database PostgreSQL dan web interface Adminer secara otomatis.
+
+1. Pastikan aplikasi **Docker Desktop** sudah terbuka dan aktif.
+2. Di direktori root proyek (`gsu-website/`), jalankan perintah:
+   ```powershell
+   docker-compose up -d
+   ```
+3. Periksa status kontainer:
+   ```powershell
+   docker ps
+   ```
+   Pastikan terdapat dua kontainer aktif:
+   - `gsu_postgres`: PostgreSQL 16 pada port `5432`
+   - `gsu_adminer`: Adminer Web DB Client pada port `8080`
+
+> [!TIP]
+> Anda dapat membuka **Adminer** di browser melalui [http://localhost:8080](http://localhost:8080) dengan parameter:
+> - **Sistem**: PostgreSQL
+> - **Server**: `db` (atau `localhost` jika mengakses dari luar docker network)
+> - **Pengguna**: `postgres`
+> - **Sandi**: `your_local_password`
+> - **Basis data**: `gsu_local`
+
+---
+
+### Langkah 3: Menyiapkan Backend Laravel 11
+
+1. Masuk ke direktori backend:
+   ```powershell
+   cd backend
+   ```
+2. Pasang dependensi PHP melalui Composer:
+   ```powershell
+   composer install
+   ```
+3. Salin berkas konfigurasi lingkungan:
+   ```powershell
+   cp .env.example .env
+   ```
+4. Buat kunci enkripsi aplikasi Laravel:
+   ```powershell
+   php artisan key:generate
+   ```
+5. Periksa konfigurasi database di file `backend/.env`:
+   ```env
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=gsu_local
+   DB_USERNAME=postgres
+   DB_PASSWORD=your_local_password
+   DB_SSLMODE=disable
+
+   SANCTUM_EXPIRATION=1440
+   ```
+6. Jalankan migrasi tabel dan seeding data awal:
+   ```powershell
+   php artisan migrate --force
+   php artisan db:seed --force
+   ```
+   *Data awal yang di-seed mencakup akun admin default, program unggulan, seksi homepage, dan data profil yayasan.*
+
+7. Buat symlink untuk storage publik (jika belum ada):
+   ```powershell
+   php artisan storage:link
+   ```
+
+8. Jalankan server lokal Laravel:
+   ```powershell
+   php artisan serve
+   ```
+   Backend API sekarang berjalan di **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
+
+---
+
+### Langkah 4: Menyiapkan Frontend Vue 3 + Vite
+
+1. Buka jendela terminal baru dan masuk ke direktori frontend:
+   ```powershell
+   cd frontend
+   ```
+2. Pasang dependensi JavaScript melalui npm:
+   ```powershell
+   npm install
+   ```
+3. Pastikan berkas `frontend/.env` telah terarah ke URL backend:
+   ```env
+   VITE_API_URL=http://127.0.0.1:8000/api
+   ```
+4. Jalankan server pengembangan Vite:
+   ```powershell
+   npm run dev
+   ```
+   Frontend sekarang berjalan di **[http://localhost:5173](http://localhost:5173)**.
+
+---
+
+## 3. Akun Administrator Default
+
+Setelah proses seeder selesai, Anda dapat masuk ke Dashboard Admin CMS menggunakan kredensial berikut:
+
+| Parameter | Nilai |
+| :--- | :--- |
+| **URL Login** | [http://localhost:5173/admin/login](http://localhost:5173/admin/login) |
+| **Email** | `admin@sedekahumat.org` |
+| **Password** | `admin123456` |
+| **Role** | `admin` |
+
+---
+
+## 4. Pengujian & Verifikasi
+
+### Uji Otomatis Backend
+Untuk menjalankan test suite pengujian keamanan, rate limiting, otorisasi role admin, dan fungsionalitas upload:
+```powershell
+cd backend
+php artisan test
+```
+*Hasil yang diharapkan: 9 unit/feature test berhasil (100% Passed).*
+
+### Uji Kompilasi Produksi Frontend
+Untuk memastikan seluruh modul Vue terkompilasi bersih tanpa error:
+```powershell
+cd frontend
+npm run build
+```
+*Hasil yang diharapkan: Berkas produksi berhasil dibuat di folder `dist/`.*
+
+---
+
+## 5. Pemecahan Masalah (Troubleshooting)
+
+### Kendala 1: Port 5432 Sudah Digunakan
+**Gejala**: Error `bind: address already in use` saat menjalankan `docker-compose up -d`.
+**Solusi**: Terdapat instalasi PostgreSQL lokal yang sedang berjalan di host. Matikan service PostgreSQL lokal atau ubah mapping port host pada file `docker-compose.yml` (misal `"5433:5432"`), lalu sesuaikan `DB_PORT=5433` pada file `backend/.env`.
+
+### Kendala 2: Ekstensi `pdo_pgsql` Tidak Ditemukan
+**Gejala**: Error `could not find driver` saat menjalankan `php artisan migrate`.
+**Solusi**: Buka file `php.ini` Anda (dapat dicari via `php --ini`), hapus tanda titik koma (`;`) di depan baris `extension=pdo_pgsql` dan `extension=pgsql`, lalu simpan dan restart terminal.
+
+### Kendala 3: Gambar yang Diunggah Tidak Muncul
+**Gejala**: Upload berhasil tetapi gambar berstatus 404.
+**Solusi**: Pastikan perintah `php artisan storage:link` telah dijalankan sehingga direktori `backend/storage/app/public` terhubung ke `backend/public/storage`.
+
+---
+*Dokumen ini diperbarui secara berkala oleh Tim Pengembang Yayasan GSU.*

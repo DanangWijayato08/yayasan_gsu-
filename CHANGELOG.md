@@ -1,187 +1,63 @@
-# Changelog - GSU Website
+# Catatan Perubahan (Changelog) - Website Yayasan GSU
 
-All notable changes to this project will be documented in this file.
+Seluruh pembaruan dan perubahan penting pada proyek **Website Yayasan Gerakan Sedekah Umat (GSU)** dicatat secara kronologis dalam dokumen ini.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Format pencatatan mengacu pada standar [Keep a Changelog](https://keepachangelog.com/id/1.0.0/) dan mematuhi aturan [Semantic Versioning](https://semver.org/lang/id/).
+
+---
+
+## [1.2.0] - 2026-09-21
+
+### Ditambahkan (Added)
+- Berkas konfigurasi `.gitignore` khusus pada folder `frontend/` untuk mencegah file build (`dist`) dan cache editor ter-commit.
+- Dokumentasi lengkap dalam **Bahasa Indonesia** pada seluruh berkas panduan (`README.md`, `SETUP.md`, `ARCHITECTURE.md`, `DEVELOPMENT.md`, `API_DOCS.md`, dan `STRUCTURE.md`).
+
+### Diubah (Changed)
+- Restrukturisasi folder frontend: Memindahkan `LoginPage.vue` dari `src/pages/` ke `src/views/LoginPage.vue` sehingga seluruh halaman terpusat rapi di direktori `src/views/`.
+- Memperbarui rute navigasi `admin-login` pada `router/index.js` agar mengarah ke lokasi view baru.
+
+### Dihapus (Removed)
+- Menghapus berkas usang `frontend/src/views/AdminDashboardView.vue` (wrapper kosong yang tidak digunakan).
+- Membersihkan direktori-direktori kosong yang tidak terpakai: `frontend/src/pages/`, `frontend/src/views/public/`, `frontend/src/components/layout/`, `frontend/src/assets/icons/`, `frontend/src/assets/images/`, `backend/app/Http/Requests/`, dan `backend/app/Http/Resources/`.
+
+---
+
+## [1.1.0] - 2026-09-21
+
+### Keamanan (Security)
+- **Otorisasi Role Admin**: Menambahkan middleware `EnsureUserIsAdmin` (`role:admin`) pada seluruh endpoint `/api/admin/*`. Pengguna non-admin otomatis ditolak dengan status **`403 Forbidden`**.
+- **Perlindungan Anti Brute-Force**: Menerapkan rate limiter `throttle:login` (maksimal 5 kali percobaan per menit) pada rute login admin.
+- **Perlindungan Anti Spam Kontak**: Menerapkan rate limiter `throttle:contact-submission` (maksimal 6 pesan per menit) pada formulir kontak.
+- **Siklus Hidup Token**: Menetapkan kedaluwarsa token Sanctum menjadi 24 jam (1440 menit) melalui `SANCTUM_EXPIRATION`.
+- **Targeted Token Revocation**: Mengubah proses logout agar hanya mencabut token sesi saat ini (`currentAccessToken()->delete()`).
+- **Sanitasi Data XSS**: Menambahkan filter `strip_tags()` pada input nama, subjek, dan pesan kontak publik.
+- **Validasi Skema Singleton**: Menambahkan validasi tipe data dan batasan panjang string pada seluruh pengaturan CMS (`SingletonController`).
+
+### Fungsionalitas & Keandalan (Fixed & Improved)
+- **Storage Local Fallback**: Menyempurnakan `SupabaseStorageService` dan `UploadController` agar otomatis menyimpan file ke penyimpanan lokal publik (`storage/app/public/...`) apabila kredensial cloud Supabase belum diisi di `.env`.
+- **Perbaikan Serialisasi Cache Database**: Mengubah objek model pada `PublicContentCache`, `ProgramController`, dan `GalleryController` menjadi array murni (`toArray()`), menuntaskan bug `__PHP_Incomplete_Class_Name`.
+- **Pencarian PostgreSQL Case-Insensitive**: Mengubah query pencarian data di PostgreSQL menggunakan operator `ILIKE`.
+- **Axios 401 Interceptor**: Menambahkan penanganan otomatis saat token kedaluwarsa untuk membersihkan storage dan mengarahkan admin kembali ke halaman login.
+- **Formulir Donasi WhatsApp**: Memperkaya template pesan konfirmasi WhatsApp dengan rincian nama donatur, nomor kontak, nominal terformat, dan metode pembayaran.
+- **Test Suite Otomatis**: Membuat `SecurityHardeningTest` di Laravel dengan 9 test case yang mencakup pengujian role, rate limiting, dan upload (100% lulus).
+
+---
+
+## [1.0.1] - 2026-09-20
+
+### Diubah (Changed)
+- **Transformasi Desain Editorial (Non-AI Slop)**:
+  - Mengganti font generik dengan tipografi berwibawa: **Newsreader** (Google Fonts editorial serif) untuk heading dan **Plus Jakarta Sans** untuk body text & formulir.
+  - Memperbarui palet warna ke warna alamiah: *Forest Emerald* (`#0F8A5F`, `#0C5A3E`), *Warm Ivory Paper* (`#FBF9F5`), dan *Warm Ochre Gold* (`#C27803`).
+  - Menghapus ornamen template AI sintetis: bola gradien melayang (*floating blobs*), badge bintang (*sparkles*), foto avatar Pravatar palsu, kartu kaca melayang (*glass cards*), dan animasi kilatan tombol (*sheen sweeps*).
+  - Menyederhanakan bar statistik dampak menjadi *Grounded Impact Strip* yang kokoh dan mudah dibaca.
+
+---
 
 ## [1.0.0] - 2026-07-04
 
-### Added
-
-#### Frontend
-- ✅ Vue 3 + Vite project setup
-- ✅ Responsive website with 7 main pages:
-  - Home (Beranda)
-  - About (Tentang)
-  - Programs (Program)
-  - Donation (Donasi)
-  - Gallery (Galeri)
-  - Contact (Kontak)
-  - Admin Dashboard
-- ✅ Component organization:
-  - `components/common/` - Reusable components (Navbar, Footer, Cards)
-  - `components/sections/` - Page sections (Hero, About, Programs, Gallery, etc)
-- ✅ Pinia state management for authentication
-- ✅ Axios API client with automatic token injection
-- ✅ Vue Router for client-side navigation
-- ✅ Scroll reveal animations with v-reveal directive
-- ✅ Build configuration with Vite
-- ✅ Built-in documentation (STRUCTURE.md)
-
-#### Backend
-- ✅ Laravel 13 API setup
-- ✅ MySQL database integration
-- ✅ Database migrations for core tables:
-  - Users
-  - Programs
-  - Galleries
-  - Contacts
-  - Personal Access Tokens (Sanctum)
-- ✅ RESTful API controllers:
-  - AuthController (Login, Logout, Me)
-  - ProgramController (CRUD operations)
-  - GalleryController (CRUD operations)
-  - ContactController (CRUD operations)
-- ✅ Laravel Sanctum for token-based authentication
-- ✅ Database seeders:
-  - AdminSeeder (Default admin user)
-  - ProgramSeeder (Sample programs)
-- ✅ CORS configuration for frontend
-- ✅ API documentation (API_DOCS.md)
-- ✅ Input validation on all endpoints
-
-#### Project Structure
-- ✅ Reorganized into clean folder structure:
-  - `frontend/` - Vue 3 + Vite
-  - `backend/` - Laravel API
-  - `database/` - Database backups & schema
-  - `docs/` - Project documentation
-  - `ui-design/` - Design assets
-  - `deployment/` - Docker & Nginx configs
-- ✅ Root level documentation:
-  - README.md - Project overview
-  - .gitignore - Git configuration
-  - LICENSE - MIT License
-  - CHANGELOG.md - This file
-
-#### Documentation
-- ✅ README.md - Complete project overview
-- ✅ SETUP.md - Installation & setup guide
-- ✅ ARCHITECTURE.md - System design & architecture
-- ✅ .gitignore - Git ignore rules
-- ✅ LICENSE - MIT License
-
-### Changed
-
-#### Frontend
-- Removed News/Berita feature completely:
-  - Deleted `News.vue` component
-  - Deleted `BeritaView.vue` page
-  - Removed `/berita` route
-  - Removed berita link from Navbar
-  - Removed berita link from Footer
-  - Removed berita activity from admin dashboard
-- Reorganized components structure for better maintainability
-- Updated all component imports to reflect new folder structure
-
-#### Backend
-- Configured database to use MySQL instead of SQLite
-- Set up Sanctum for token authentication
-- Added proper CORS configuration
-
-### Fixed
-
-- ✅ Build errors from missing component imports
-- ✅ CORS configuration for frontend-backend communication
-- ✅ Component import paths after reorganization
-- ✅ Berita feature references in navigation
-
-### Deprecated
-
-- News/Berita feature (removed in v1.0.0)
-
-### Security
-
-- ✅ Implemented token-based authentication
-- ✅ Added input validation on all API endpoints
-- ✅ Configured CORS with specific allowed origins
-- ✅ Hashed password storage in database
-- ✅ Environment variable protection (.env)
-
-### Removed
-
-- Berita (News) feature:
-  - Removed route `/berita`
-  - Removed `News.vue` component
-  - Removed `BeritaView.vue` page
-  - Removed menu items in Navbar, Footer, Admin Dashboard
-
-## [0.1.0] - 2026-07-04 (Initial Setup)
-
-### Added (Initial Setup)
-
-#### Frontend
-- Vue 3 project created with Vite
-- Initial page structure
-- Basic styling
-
-#### Backend
-- Laravel 13 project created
-- Initial migrations
-- Database setup
-
----
-
-## Planned Features (Backlog)
-
-### v1.1.0
-- [ ] Admin dashboard functionality
-- [ ] Program editing interface
-- [ ] Gallery management UI
-- [ ] Contact messages view
-- [ ] Dashboard analytics
-
-### v1.2.0
-- [ ] File upload for images
-- [ ] Image optimization
-- [ ] Caching system
-- [ ] Email notifications
-
-### v2.0.0
-- [ ] Docker deployment
-- [ ] CI/CD pipeline
-- [ ] Advanced analytics
-- [ ] Multi-language support
-- [ ] Mobile app (React Native)
-
----
-
-## How to Contribute
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## Versioning
-
-This project uses [Semantic Versioning](https://semver.org/):
-- MAJOR version when you make incompatible API changes
-- MINOR version when you add functionality in a backwards compatible manner
-- PATCH version when you make backwards compatible bug fixes
-
----
-
-## Support
-
-For support, open an issue on GitHub or contact the team.
-
----
-
-**Last Updated:** 2026-07-04  
-**Version:** 1.0.0  
-**Status:** ✅ Production Ready
+### Ditambahkan (Added)
+- Inisialisasi awal repositori proyek Yayasan Gerakan Sedekah Umat (GSU).
+- Backend RESTful API berbasis Laravel dengan autentikasi Laravel Sanctum.
+- Frontend Single Page Application (SPA) berbasis Vue 3 + Vite.
+- Migrasi tabel database untuk pengguna, program, galeri, dan kontak.
