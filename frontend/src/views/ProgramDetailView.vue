@@ -87,7 +87,7 @@ onMounted(async () => {
             </div>
 
             <div class="detail__actions">
-              <router-link to="/donasi" class="btn btn-primary btn-lg">
+              <router-link :to="{ path: '/donasi', query: { program: program.title } }" class="btn btn-primary btn-lg">
                 <i class="fa-solid fa-heart"></i> Donasi Program Ini
               </router-link>
               <router-link to="/program" class="btn btn-outline">

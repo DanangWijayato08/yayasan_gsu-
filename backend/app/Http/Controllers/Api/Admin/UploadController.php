@@ -11,7 +11,7 @@ class UploadController extends Controller
     public function __invoke(Request $request, SupabaseStorageService $storage)
     {
         $validated = $request->validate([
-            'image' => 'required|file|mimes:jpg,jpeg,png,webp,svg|max:5120',
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'folder' => 'nullable|string|in:logos,hero,programs,galleries,donation,about,qris,uploads',
         ]);
 
@@ -25,8 +25,10 @@ class UploadController extends Controller
                 'url' => $uploaded['url'],
             ], 201);
         } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
-                'message' => 'Gagal mengunggah file: ' . $e->getMessage(),
+                'message' => 'Gagal mengunggah file. Silakan coba lagi.',
             ], 422);
         }
     }

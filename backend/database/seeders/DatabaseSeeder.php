@@ -80,6 +80,8 @@ class DatabaseSeeder extends Seeder
         DonationSetting::updateOrCreate(['id' => 1], [
             'title' => 'Setiap Rupiah Membawa Harapan',
             'description' => 'Salurkan donasi terbaik Anda melalui rekening resmi yayasan atau konfirmasi melalui WhatsApp.',
+            'collected_amount' => 850000000,
+            'target_amount' => 1200000000,
             'bank_name' => 'Bank Syariah Indonesia',
             'bank_account_number' => '1234567890',
             'bank_account_holder' => 'Yayasan Gerakan Sedekah Umat',
@@ -89,13 +91,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         ContactSetting::updateOrCreate(['id' => 1], [
-            'address' => 'Jl. Kebajikan No. 12, Jakarta Selatan, Indonesia',
-            'email' => 'halo@sedekahumat.org',
+            'address' => 'Suronandan RT 3, Ngaranan, Sendangrejo, Kec. Minggir, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55264',
+            'email' => 'yayasansemat@gmail.com',
             'phone' => '+62 812-3456-7890',
             'whatsapp' => '6281234567890',
-            'instagram_url' => 'https://instagram.com/',
+            'instagram_url' => 'https://www.instagram.com/yayasan.gsu/',
+            'tiktok_url' => 'https://www.tiktok.com/@gerakansedekahumat',
             'facebook_url' => 'https://facebook.com/',
-            'google_maps_embed' => 'https://maps.google.com/maps?q=Jakarta%20Selatan&t=&z=13&ie=UTF8&iwloc=&output=embed',
+            'google_maps_embed' => 'https://maps.google.com/maps?q=Suronandan%20RT%203%2C%20Ngaranan%2C%20Sendangrejo%2C%20Kec.%20Minggir%2C%20Kabupaten%20Sleman%2C%20Daerah%20Istimewa%20Yogyakarta&t=&z=16&ie=UTF8&iwloc=&output=embed',
             'operational_hours' => 'Senin - Jumat, 09.00 - 17.00 WIB',
         ]);
 

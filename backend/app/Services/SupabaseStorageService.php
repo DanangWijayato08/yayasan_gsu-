@@ -33,7 +33,7 @@ class SupabaseStorageService
     private function uploadToSupabase(UploadedFile $file, string $folder, string $url, string $key, string $bucket): array
     {
         $folder = trim($folder, '/');
-        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension());
+        $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension());
         $path = ($folder ? $folder.'/' : '').Str::uuid().'.'.$extension;
         $mime = $file->getMimeType() ?: 'application/octet-stream';
 
@@ -60,7 +60,7 @@ class SupabaseStorageService
     private function uploadToLocal(UploadedFile $file, string $folder): array
     {
         $folder = trim($folder, '/');
-        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension());
+        $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension());
         $filename = Str::uuid().'.'.$extension;
         $targetDirectory = $folder ?: 'uploads';
 

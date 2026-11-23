@@ -20,6 +20,7 @@ const routes = [
   { path: '/admin/contact-settings', name: 'admin-contact-settings', component: () => import('../views/admin/CmsView.vue'), meta: { title: 'CMS Kontak', layout: 'admin', requiresAuth: true, cms: 'contact' } },
   { path: '/admin/site-settings', name: 'admin-site-settings', component: () => import('../views/admin/CmsView.vue'), meta: { title: 'CMS Website', layout: 'admin', requiresAuth: true, cms: 'site' } },
   { path: '/admin/footer', name: 'admin-footer', component: () => import('../views/admin/CmsView.vue'), meta: { title: 'CMS Footer', layout: 'admin', requiresAuth: true, cms: 'footer' } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue'), meta: { title: 'Halaman Tidak Ditemukan' } },
 ]
 
 const router = createRouter({

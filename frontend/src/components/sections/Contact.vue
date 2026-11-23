@@ -35,10 +35,10 @@ const activeContact = computed(() => {
       current?.whatsapp ||
       layout?.whatsapp ||
       '6281234567890',
-    instagram_url: current?.instagram_url || layout?.instagram_url,
+    instagram_url: current?.instagram_url || layout?.instagram_url || 'https://www.instagram.com/yayasan.gsu/',
+    tiktok_url: current?.tiktok_url || layout?.tiktok_url || 'https://www.tiktok.com/@gerakansedekahumat',
     facebook_url: current?.facebook_url || layout?.facebook_url,
     youtube_url: current?.youtube_url || layout?.youtube_url,
-    tiktok_url: current?.tiktok_url || layout?.tiktok_url,
     google_maps_embed: current?.google_maps_embed || layout?.google_maps_embed,
   }
 })

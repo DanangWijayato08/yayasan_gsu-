@@ -14,25 +14,18 @@ class ProgramController extends Controller
     public function index()
     {
         return response()->json(
-            Cache::remember(PublicContentCache::PROGRAMS_KEY, PublicContentCache::TTL, fn () => Program::where('is_active', true)
-                ->orderBy('sort_order')
-                ->latest()
-                ->get()
-                ->toArray()),
-            200
+            Cache::remember(PublicContentCache::PROGRAMS_KEY, PublicContentCache::TTL, fn () => 
+                Program::where('is_active', true)->orderBy('sort_order')->latest()->get()->toArray()
+            ), 200
         );
     }
 
     public function featured()
     {
         return response()->json(
-            Cache::remember('public.programs.featured', PublicContentCache::TTL, fn () => Program::where('is_active', true)
-                ->where('is_featured', true)
-                ->orderBy('sort_order')
-                ->latest()
-                ->get()
-                ->toArray()),
-            200
+            Cache::remember('public.programs.featured', PublicContentCache::TTL, fn () => 
+                Program::where('is_active', true)->where('is_featured', true)->orderBy('sort_order')->latest()->get()->toArray()
+            ), 200
         );
     }
 
@@ -63,8 +56,7 @@ class ProgramController extends Controller
 
     public function store(Request $request, PublicContentCache $cache)
     {
-        $validated = $this->validated($request);
-
+        $validated = $this->validateProgram($request);
         $program = Program::create($validated);
         $cache->flushPublicLists();
         Cache::forget('public.programs.featured');
@@ -84,8 +76,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program, PublicContentCache $cache)
     {
-        $validated = $this->validated($request, $program);
-
+        $validated = $this->validateProgram($request, $program);
         $program->update($validated);
         $cache->flushPublicLists();
         Cache::forget('public.programs.featured');
@@ -97,19 +88,14 @@ class ProgramController extends Controller
         $program->delete();
         $cache->flushPublicLists();
         Cache::forget('public.programs.featured');
-        return response()->json(['message' => 'Program deleted'], 200);
+        return response()->json(['message' => 'Program berhasil dihapus'], 200);
     }
 
-    private function validated(Request $request, ?Program $program = null): array
+    private function validateProgram(Request $request, ?Program $program = null): array
     {
-        $validated = $request->validate([
+        return $request->validate([
             'title' => [$program ? 'sometimes' : 'required', 'string', 'max:255'],
-            'slug' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('programs', 'slug')->ignore($program?->id),
-            ],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('programs', 'slug')->ignore($program?->id)],
             'category' => [$program ? 'sometimes' : 'required', 'string', 'max:100'],
             'short_description' => 'nullable|string',
             'description' => [$program ? 'sometimes' : 'required', 'string'],
@@ -120,26 +106,6 @@ class ProgramController extends Controller
             'is_featured' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
-            'target' => 'nullable|integer|min:0',
-            'collected' => 'nullable|integer|min:0',
-            'active' => 'nullable|boolean',
         ]);
-
-        if (array_key_exists('target', $validated)) {
-            $validated['target_amount'] = $validated['target'];
-            unset($validated['target']);
-        }
-
-        if (array_key_exists('collected', $validated)) {
-            $validated['collected_amount'] = $validated['collected'];
-            unset($validated['collected']);
-        }
-
-        if (array_key_exists('active', $validated)) {
-            $validated['is_active'] = $validated['active'];
-            unset($validated['active']);
-        }
-
-        return $validated;
     }
 }

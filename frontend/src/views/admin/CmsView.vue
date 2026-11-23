@@ -113,6 +113,8 @@ const configs = {
     fields: [
       ['title', 'Judul', 'text'],
       ['description', 'Deskripsi', 'textarea'],
+      ['collected_amount', 'Dana Terkumpul (Rp)', 'number'],
+      ['target_amount', 'Target Dana (Rp)', 'number'],
       ['bank_name', 'Nama Bank', 'text'],
       ['bank_account_number', 'Nomor Rekening', 'text'],
       ['bank_account_holder', 'Pemilik Rekening', 'text'],
@@ -321,6 +323,17 @@ function getBooleanDesc(field) {
   if (key === 'maintenance_mode') return 'Pengunjung akan diarahkan ke layar perbaikan saat mode ini aktif.'
   return `Aktifkan atau nonaktifkan pengaturan ${field[1].toLowerCase()}.`
 }
+
+// Translate status ke Bahasa Indonesia
+function formatStatus(status) {
+  const statusMap = {
+    'unread': 'Belum Dibaca',
+    'read': 'Sudah Dibaca',
+    'archived': 'Diarsipkan'
+  }
+  return statusMap[status] || status
+}
+
 
 // Visual Repeater Helpers
 function addListItem(key) {
@@ -679,9 +692,9 @@ onMounted(load)
         </div>
         <select v-model="statusFilter">
           <option value="">Semua status</option>
-          <option value="unread">Unread</option>
-          <option value="read">Read</option>
-          <option value="archived">Archived</option>
+          <option value="unread">Belum Dibaca</option>
+          <option value="read">Sudah Dibaca</option>
+          <option value="archived">Diarsipkan</option>
         </select>
         <select v-model="perPage">
           <option :value="10">10 / halaman</option>
@@ -697,7 +710,7 @@ onMounted(load)
             <div class="message__head">
               <strong>{{ message.name }}</strong>
               <span class="message__status" :class="'message__status--' + (message.status || 'unread')">
-                {{ message.status || 'unread' }}
+                {{ formatStatus(message.status || 'unread') }}
               </span>
             </div>
             <small>{{ message.email }} &middot; {{ message.phone || '-' }}</small>
@@ -705,9 +718,9 @@ onMounted(load)
             <p>{{ message.message }}</p>
           </div>
           <div class="message__actions">
-            <button class="btn-sm" @click="updateMessage(message, 'read')">Read</button>
-            <button class="btn-sm btn-ghost" @click="updateMessage(message, 'archived')">Archive</button>
-            <button class="btn-sm btn-danger" @click="destroy(message)">Delete</button>
+            <button class="btn-sm" @click="updateMessage(message, 'read')">Baca</button>
+            <button class="btn-sm btn-ghost" @click="updateMessage(message, 'archived')">Arsip</button>
+            <button class="btn-sm btn-danger" @click="destroy(message)">Hapus</button>
           </div>
         </article>
 

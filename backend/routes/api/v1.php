@@ -14,19 +14,21 @@ use Illuminate\Support\Facades\Route;
 Route::post('/admin/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
 
-Route::get('public/home', [ContentController::class, 'home']);
-Route::get('public/layout', [ContentController::class, 'layout']);
-Route::get('site-settings', [ContentController::class, 'siteSettings']);
-Route::get('homepage', [ContentController::class, 'homepage']);
-Route::get('about', [ContentController::class, 'about']);
-Route::get('programs', [ProgramController::class, 'index']);
-Route::get('programs/featured', [ProgramController::class, 'featured']);
-Route::get('programs/{slug}', [ProgramController::class, 'showBySlug']);
-Route::get('galleries', [GalleryController::class, 'index']);
-Route::get('galleries/{gallery}', [GalleryController::class, 'show']);
-Route::get('donation-settings', [ContentController::class, 'donationSettings']);
-Route::get('contact-settings', [ContentController::class, 'contactSettings']);
-Route::get('footer', [ContentController::class, 'footer']);
+Route::middleware('throttle:api')->group(function () {
+    Route::get('public/home', [ContentController::class, 'home']);
+    Route::get('public/layout', [ContentController::class, 'layout']);
+    Route::get('site-settings', [ContentController::class, 'siteSettings']);
+    Route::get('homepage', [ContentController::class, 'homepage']);
+    Route::get('about', [ContentController::class, 'about']);
+    Route::get('programs', [ProgramController::class, 'index']);
+    Route::get('programs/featured', [ProgramController::class, 'featured']);
+    Route::get('programs/{slug}', [ProgramController::class, 'showBySlug']);
+    Route::get('galleries', [GalleryController::class, 'index']);
+    Route::get('galleries/{gallery}', [GalleryController::class, 'publicShow']);
+    Route::get('donation-settings', [ContentController::class, 'donationSettings']);
+    Route::get('contact-settings', [ContentController::class, 'contactSettings']);
+    Route::get('footer', [ContentController::class, 'footer']);
+});
 Route::post('contact-messages', [ContactController::class, 'store'])->middleware('throttle:contact-submission');
 Route::post('contacts', [ContactController::class, 'store'])->middleware('throttle:contact-submission');
 

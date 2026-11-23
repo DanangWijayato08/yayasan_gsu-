@@ -126,4 +126,50 @@ class SecurityHardeningTest extends TestCase
         $validResponse->assertStatus(200);
         $this->assertEquals('info@gsu.org', $validResponse->json('email'));
     }
+
+    public function test_upload_controller_rejects_svg_xss_file(): void
+    {
+        Storage::fake('public');
+        $adminUser = User::factory()->create(['role' => 'admin']);
+
+        $svgFile = UploadedFile::fake()->createWithContent(
+            'malicious.svg',
+            '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
+        );
+
+        $response = $this->actingAs($adminUser, 'sanctum')
+            ->postJson('/api/admin/upload', [
+                'image' => $svgFile,
+                'folder' => 'uploads',
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_non_admin_cannot_login_via_admin_login(): void
+    {
+        User::factory()->create([
+            'email' => 'member@example.com',
+            'password' => 'password123',
+            'role' => 'user',
+        ]);
+
+        $response = $this->postJson('/api/admin/login', [
+            'email' => 'member@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_public_gallery_show_hides_inactive_items(): void
+    {
+        $inactive = \App\Models\Gallery::create([
+            'title' => 'Draft Gallery',
+            'image' => 'https://example.com/draft.jpg',
+            'is_active' => false,
+        ]);
+
+        $this->getJson("/api/galleries/{$inactive->id}")->assertStatus(404);
+    }
 }

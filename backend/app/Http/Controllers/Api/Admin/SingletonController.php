@@ -3,20 +3,27 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SiteSetting;
 use App\Models\AboutPage;
 use App\Models\ContactSetting;
 use App\Models\DonationSetting;
 use App\Models\FooterSetting;
-use App\Models\SiteSetting;
 use App\Services\PublicContentCache;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 
+/**
+ * Pengontrol Singleton Settings
+ * 
+ * Menangani pengaturan situs yang bersifat singleton (hanya ada 1 record).
+ * Termasuk: site-settings, about, donation-settings, contact-settings, footer-settings
+ */
 class SingletonController extends Controller
 {
-    private array $map = [
+    /**
+     * Map tipe setting ke model yang sesuai
+     */
+    protected array $typeModelMap = [
         'site-settings' => SiteSetting::class,
         'about' => AboutPage::class,
         'donation-settings' => DonationSetting::class,
@@ -24,39 +31,108 @@ class SingletonController extends Controller
         'footer-settings' => FooterSetting::class,
     ];
 
-    public function show(string $type)
+    /**
+     * Ambil data setting berdasarkan tipe
+     * 
+     * @param Request $request - Request berisi tipe setting
+     * @param string $type - Tipe setting (site-settings, about, dll)
+     * @return \Illuminate\Http\JsonResponse - Data setting atau error
+     */
+    public function show(Request $request, string $type)
     {
-        return response()->json($this->model($type)::first());
-    }
-
-    public function update(Request $request, string $type, PublicContentCache $cache)
-    {
-        $modelClass = $this->model($type);
-        $rules = $this->validationRules($type);
-        $validated = $request->validate($rules);
-
-        if ($type === 'contact-settings' && isset($validated['google_maps_embed'])) {
-            $validated['google_maps_embed'] = $this->normalizeGoogleMapsEmbedUrl($validated['google_maps_embed']);
+        // Validasi tipe setting
+        if (!isset($this->typeModelMap[$type])) {
+            return response()->json([
+                'message' => 'Tipe setting tidak valid',
+                'valid_types' => array_keys($this->typeModelMap)
+            ], 422);
         }
 
-        /** @var Model $model */
-        $model = $modelClass::firstOrNew();
-        $model->fill($validated);
-        $model->save();
-        $this->flush($type, $cache);
+        try {
+            // Ambil model class berdasarkan tipe
+            $modelClass = $this->typeModelMap[$type];
+            
+            // Cek cache terlebih dahulu
+            $cacheKey = "admin.settings.{$type}";
+            $data = Cache::remember($cacheKey, 3600, function () use ($modelClass) {
+                // Ambil record pertama (singleton)
+                return $modelClass::first() ?? $modelClass::create([]);
+            });
 
-        return response()->json($model);
+            return response()->json($data, 200);
+        } catch (\Exception $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengambil data.'
+            ], 500);
+        }
     }
 
-    private function model(string $type): string
+    /**
+     * Perbarui data setting berdasarkan tipe
+     * 
+     * @param Request $request - Request berisi data setting baru
+     * @param string $type - Tipe setting (site-settings, about, dll)
+     * @return \Illuminate\Http\JsonResponse - Data setting yang diupdate
+     */
+    public function update(Request $request, string $type, PublicContentCache $cache)
     {
-        abort_unless(isset($this->map[$type]), 404);
-        return $this->map[$type];
+        // Validasi tipe setting
+        if (!isset($this->typeModelMap[$type])) {
+            return response()->json([
+                'message' => 'Tipe setting tidak valid',
+                'valid_types' => array_keys($this->typeModelMap)
+            ], 422);
+        }
+
+        $validated = $this->validateSettings($request, $type);
+
+        try {
+            $modelClass = $this->typeModelMap[$type];
+            
+            // Ambil atau buat record singleton
+            $data = $modelClass::firstOrCreate([]);
+
+            // Update dengan data yang telah divalidasi
+            $data->update($validated);
+
+            // Invalidasi cache admin
+            $cacheKey = "admin.settings.{$type}";
+            Cache::forget($cacheKey);
+
+            // Invalidasi cache konten publik instan
+            $cache->flushLayout();
+            $cache->flushHome();
+
+            return response()->json($data, 200);
+        } catch (\Exception $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat memperbarui data.'
+            ], 500);
+        }
     }
 
-    private function validationRules(string $type): array
+    /**
+     * Validasi data input berdasarkan tipe singleton
+     */
+    protected function validateSettings(Request $request, string $type): array
     {
-        return match ($type) {
+        $rules = match ($type) {
+            'contact-settings' => [
+                'address' => 'nullable|string|max:500',
+                'email' => 'nullable|email|max:255',
+                'phone' => 'nullable|string|max:50',
+                'whatsapp' => 'nullable|string|max:50',
+                'instagram_url' => 'nullable|url|max:255',
+                'facebook_url' => 'nullable|url|max:255',
+                'youtube_url' => 'nullable|url|max:255',
+                'tiktok_url' => 'nullable|url|max:255',
+                'google_maps_embed' => 'nullable|string|max:2048',
+                'operational_hours' => 'nullable|string|max:255',
+            ],
             'site-settings' => [
                 'site_name' => 'nullable|string|max:255',
                 'logo' => 'nullable|string|max:2048',
@@ -71,112 +147,34 @@ class SingletonController extends Controller
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'vision' => 'nullable|string',
-                'mission' => 'nullable',
-                'values' => 'nullable',
+                'mission' => 'nullable|array',
+                'values' => 'nullable|array',
                 'image' => 'nullable|string|max:2048',
                 'legal_info' => 'nullable|string',
-                'organization_structure' => 'nullable',
+                'organization_structure' => 'nullable|array',
             ],
             'donation-settings' => [
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
+                'collected_amount' => 'nullable|integer|min:0',
+                'target_amount' => 'nullable|integer|min:0',
                 'bank_name' => 'nullable|string|max:100',
                 'bank_account_number' => 'nullable|string|max:100',
-                'bank_account_holder' => 'nullable|string|max:150',
+                'bank_account_holder' => 'nullable|string|max:255',
                 'qris_image' => 'nullable|string|max:2048',
                 'whatsapp_number' => 'nullable|string|max:50',
                 'payment_instruction' => 'nullable|string',
-                'suggested_amounts' => 'nullable',
-            ],
-            'contact-settings' => [
-                'address' => 'nullable|string|max:1000',
-                'email' => 'nullable|email|max:255',
-                'phone' => 'nullable|string|max:50',
-                'whatsapp' => 'nullable|string|max:50',
-                'facebook_url' => 'nullable|string|max:500',
-                'instagram_url' => 'nullable|string|max:500',
-                'youtube_url' => 'nullable|string|max:500',
-                'tiktok_url' => 'nullable|string|max:500',
-                'google_maps_embed' => 'nullable|string|max:2000',
-                'operational_hours' => 'nullable|string|max:255',
+                'suggested_amounts' => 'nullable|array',
             ],
             'footer-settings' => [
-                'description' => 'nullable|string|max:1000',
+                'description' => 'nullable|string',
                 'copyright_text' => 'nullable|string|max:255',
-                'quick_links' => 'nullable',
-                'social_links' => 'nullable',
+                'quick_links' => 'nullable|array',
+                'social_links' => 'nullable|array',
             ],
             default => [],
         };
-    }
 
-    private function flush(string $type, PublicContentCache $cache): void
-    {
-        Cache::forget('public.'.$type);
-
-        if (in_array($type, ['site-settings', 'contact-settings', 'footer-settings'], true)) {
-            $cache->flushLayout();
-            return;
-        }
-
-        if (in_array($type, ['about', 'donation-settings'], true)) {
-            $cache->flushHome();
-        }
-    }
-
-    private function normalizeGoogleMapsEmbedUrl(?string $url): ?string
-    {
-        if (empty($url)) {
-            return $url;
-        }
-
-        $url = trim($url);
-
-        // 1. Ekstrak src jika user mem-paste seluruh tag <iframe>
-        if (preg_match('/src=["\']([^"\']+)["\']/i', $url, $matches)) {
-            $url = $matches[1];
-        }
-
-        // 2. Jika sudah berupa embed URL Google Maps
-        if (str_contains($url, '/maps/embed') || str_contains($url, 'output=embed')) {
-            return $url;
-        }
-
-        // 3. Jika berupa tautan pendek maps.app.goo.gl, cari tujuan redirect-nya
-        if (str_contains($url, 'maps.app.goo.gl')) {
-            try {
-                $response = Http::withUserAgent('Mozilla/5.0')->timeout(4)->withoutRedirecting()->head($url);
-                $location = $response->header('Location');
-                if ($location) {
-                    $url = $location;
-                }
-            } catch (\Throwable) {
-                // Lanjutkan ke pola berikutnya jika gagal request
-            }
-        }
-
-        // 4. Jika tautan tempat /maps/place/{nama_tempat}
-        if (preg_match('/\/maps\/place\/([^\/@]+)/i', $url, $matches)) {
-            $place = urldecode(str_replace('+', ' ', $matches[1]));
-            return 'https://maps.google.com/maps?q=' . urlencode($place) . '&output=embed';
-        }
-
-        // 5. Jika terdapat koordinat latitude,longitude (@-7.123,110.123)
-        if (preg_match('/@(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
-            return 'https://maps.google.com/maps?q=' . $matches[1] . ',' . $matches[2] . '&output=embed';
-        }
-
-        // 6. Jika tautan pencarian /maps/search/{query}
-        if (preg_match('#/maps/search/([^/?]+)#i', $url, $matches)) {
-            $query = urldecode(str_replace('+', ' ', $matches[1]));
-            return 'https://maps.google.com/maps?q=' . urlencode($query) . '&output=embed';
-        }
-
-        // 7. Jika berupa teks alamat biasa (bukan URL http)
-        if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
-            return 'https://maps.google.com/maps?q=' . urlencode($url) . '&output=embed';
-        }
-
-        return $url;
+        return $request->validate($rules);
     }
 }

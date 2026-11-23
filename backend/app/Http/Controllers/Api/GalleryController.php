@@ -74,6 +74,12 @@ class GalleryController extends Controller
         return response()->json($gallery, 200);
     }
 
+    public function publicShow(Gallery $gallery)
+    {
+        abort_unless($gallery->is_active, 404);
+        return response()->json($gallery, 200);
+    }
+
     public function update(Request $request, Gallery $gallery, PublicContentCache $cache)
     {
         $validated = $request->validate([

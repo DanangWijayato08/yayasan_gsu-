@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import ProgressBar from '../common/ProgressBar.vue'
 import { publicService } from '@/services/api/client'
 
+const route = useRoute()
 const settings = ref(null)
 const amounts = computed(() => settings.value?.suggested_amounts?.length ? settings.value.suggested_amounts : [10000, 25000, 50000, 100000, 500000])
 const selectedAmount = ref(50000)
@@ -14,6 +16,12 @@ const copied = ref(false)
 const step = ref(1)
 
 const finalAmount = computed(() => customAmount.value ? Number(customAmount.value) : selectedAmount.value)
+const collectedAmount = computed(() => Number(settings.value?.collected_amount ?? 0))
+const targetAmount = computed(() => Number(settings.value?.target_amount ?? 0))
+const activeProgramTitle = computed(() => {
+  const fromQuery = typeof route.query.program === 'string' ? route.query.program.trim() : ''
+  return fromQuery || settings.value?.title || 'Setiap Rupiah Membawa Harapan'
+})
 
 async function copyAccountNumber() {
   const acc = settings.value?.bank_account_number || '1234567890'
@@ -63,7 +71,7 @@ function submit() {
   if (form.value.email?.trim()) msg += `Email        : ${form.value.email.trim()}\n`
   msg += `Nominal      : ${formatRp(finalAmount.value)}\n`
   msg += `Metode Bayar : ${methodLabel}\n`
-  msg += `Program      : ${settings.value?.title || 'Sedekah Umum'}\n`
+  msg += `Program      : ${activeProgramTitle.value}\n`
   msg += `--------------------------------\n`
   msg += `Mohon konfirmasi dan info penyaluran. Terima kasih.`
 
@@ -81,13 +89,13 @@ function submit() {
     <div class="donate__panel card">
       <div class="donate__campaign">
         <div class="donate__campaign-head">
-          <span>Kampanye Aktif</span>
-          <strong>{{ settings?.title || 'Bantuan Ramadan 2026' }}</strong>
+          <span>{{ route.query.program ? 'Program Pilihan' : 'Kampanye Aktif' }}</span>
+          <strong>{{ activeProgramTitle }}</strong>
         </div>
-        <ProgressBar :current="850" :target="1200" color="primary" />
+        <ProgressBar :current="collectedAmount" :target="targetAmount" color="primary" />
         <div class="donate__campaign-figures">
-          <span><strong>Rp850Jt</strong> terkumpul</span>
-          <span>Target <strong>Rp1.200Jt</strong></span>
+          <span><strong>{{ formatRp(collectedAmount) }}</strong> terkumpul</span>
+          <span>Target <strong>{{ formatRp(targetAmount) }}</strong></span>
         </div>
       </div>
 
