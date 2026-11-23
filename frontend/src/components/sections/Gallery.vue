@@ -61,9 +61,10 @@ function close() { active.value = null }
         :key="img.src || i"
         class="gallery__item"
         :class="'gallery__item--' + ((i % 5) + 1)"
+        :aria-label="'Lihat foto ' + img.alt"
         @click="open(img)"
       >
-        <img :src="img.src" :alt="img.alt" loading="lazy" />
+        <img :src="img.src" :alt="img.alt" :loading="i < 4 ? 'eager' : 'lazy'" decoding="async" />
         <div class="gallery__overlay">
           <div class="gallery__zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
         </div>

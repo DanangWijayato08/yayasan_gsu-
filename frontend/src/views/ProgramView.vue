@@ -5,7 +5,7 @@ import ProgramSection from '../components/sections/ProgramSection.vue'
 <template>
   <div>
     <section class="page-header">
-      <div class="container" v-reveal="'up'">
+      <div class="container">
         <span class="eyebrow"><i class="fa-solid fa-hand-holding-hand"></i> Inisiatif & Program</span>
         <h1>Program Kebaikan & Pemberdayaan</h1>
         <p>Menerangi jalan kebaikan melalui inisiatif sosial, pendidikan, dan keagamaan yang berkelanjutan untuk memberdayakan masyarakat.</p>

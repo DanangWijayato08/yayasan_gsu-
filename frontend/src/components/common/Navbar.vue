@@ -34,7 +34,7 @@ const handleLogout = async () => {
 
 onMounted(async () => {
   window.addEventListener('scroll', onScroll, { passive: true })
-  await layoutStore.load(true)
+  await layoutStore.load()
 })
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </script>
@@ -45,7 +45,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <!-- Brand Lockup -->
       <router-link to="/" class="navbar__brand" @click="menuOpen = false">
         <div class="navbar__logo-box">
-          <img :src="logoUrl" :alt="siteName" class="navbar__logo" @error="(e) => e.target.src = '/logo.svg'" />
+          <img :src="logoUrl" :alt="siteName" width="38" height="38" class="navbar__logo" @error="(e) => e.target.src = '/logo.svg'" />
         </div>
         <div class="navbar__brand-info">
           <span class="navbar__name">{{ siteName }}</span>

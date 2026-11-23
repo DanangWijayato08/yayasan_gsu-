@@ -48,7 +48,7 @@ watch(() => props.data, (value) => {
 <template>
   <section class="hero">
     <div class="container hero__grid">
-      <div class="hero__copy" v-reveal:0="'left'">
+      <div class="hero__copy">
         <span class="eyebrow">
           <i class="fa-solid fa-shield-halved"></i> {{ content.subtitle || 'Yayasan Filantropi Terpercaya' }}
         </span>
@@ -82,12 +82,16 @@ watch(() => props.data, (value) => {
         </div>
       </div>
 
-      <div class="hero__visual" v-reveal:150="'right'">
+      <div class="hero__visual">
         <div class="hero__image-frame">
           <img
             class="hero__image"
             :src="content.image"
             alt="Kegiatan sosial Gerakan Sedekah Umat"
+            width="600"
+            height="630"
+            fetchpriority="high"
+            decoding="async"
           />
           <div class="hero__caption-card">
             <div class="hero__caption-header">

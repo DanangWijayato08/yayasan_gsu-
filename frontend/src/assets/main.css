@@ -265,6 +265,13 @@ input, textarea, select { font-family: inherit; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+i[class^="fa-"],
+i[class*=" fa-"] {
+  display: inline-block;
+  min-width: 1em;
+  text-align: center;
+}
+
 @media (max-width: 960px) {
   .section { padding: 60px 0; }
 }

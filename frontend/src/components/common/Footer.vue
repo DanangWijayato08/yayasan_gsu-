@@ -119,7 +119,7 @@ const socialLinks = computed(() => {
 })
 
 onMounted(async () => {
-  await layoutStore.load(true)
+  await layoutStore.load()
 })
 </script>
 
@@ -130,7 +130,7 @@ onMounted(async () => {
         <!-- Kolom 1: Profil & Media Sosial -->
         <div class="footer__col footer__brand">
           <div class="footer__logo">
-            <img :src="logoUrl" :alt="siteName" @error="(e) => e.target.src = '/logo.svg'" />
+            <img :src="logoUrl" :alt="siteName" width="38" height="38" @error="(e) => e.target.src = '/logo.svg'" />
             <span>{{ siteName }}</span>
           </div>
           <p>{{ description }}</p>

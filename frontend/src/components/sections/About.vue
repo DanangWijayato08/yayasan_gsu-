@@ -41,12 +41,18 @@ watch(() => props.data, (value) => {
 <template>
   <section class="about section">
     <div class="container about__grid">
-      <div class="about__media" v-reveal="'left'">
+      <div class="about__media">
         <div class="about__image-wrapper">
           <div class="about__image-tag">
             <i class="fa-solid fa-landmark"></i> Profil Yayasan
           </div>
-          <img :src="content.image" alt="Kegiatan Yayasan Gerakan Sedekah Umat" />
+          <img
+            :src="content.image"
+            alt="Kegiatan Yayasan Gerakan Sedekah Umat"
+            width="600"
+            height="450"
+            decoding="async"
+          />
         </div>
         <div class="about__badge">
           <span>Nilai Kelembagaan</span>
@@ -106,6 +112,15 @@ watch(() => props.data, (value) => {
   overflow: hidden;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
+  aspect-ratio: 4 / 3;
+  background: var(--color-accent);
+}
+
+.about__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .about__image-tag {

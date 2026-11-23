@@ -31,7 +31,7 @@ Aplikasi ini dibangun untuk menjamin transparansi, akuntabilitas, dan kemudahan 
 | Lapisan | Teknologi | Deskripsi |
 | :--- | :--- | :--- |
 | **Frontend** | Vue 3, Vite, Pinia, Vue Router, Axios | Antarmuka SPA modern dengan tipografi editorial Newsreader dan Plus Jakarta Sans. |
-| **Backend** | Laravel 11, Laravel Sanctum, PHP 8.3 | API RESTful terstruktur dengan otorisasi berbasis peran, pembatasan laju, dan sanitasi data. |
+| **Backend** | Laravel 13, Laravel Sanctum, PHP 8.3 | API RESTful terstruktur dengan otorisasi berbasis peran, pembatasan laju, dan sanitasi data. |
 | **Database** | PostgreSQL 16 (via Docker / Supabase) | Penyimpanan data relasional dengan pencarian teks yang tidak peka huruf besar-kecil. |
 | **Penyimpanan Gambar** | Penyimpanan Lokal / Supabase Storage | Upload gambar otomatis tersimpan di penyimpanan lokal publik. |
 | **Manajemen Database** | Adminer 4.8 (via Docker) | Antarmuka web untuk inspeksi database PostgreSQL. |
@@ -42,7 +42,7 @@ Aplikasi ini dibangun untuk menjamin transparansi, akuntabilitas, dan kemudahan 
 
 ```text
 gsu-website/
-├── backend/                    # Aplikasi API Laravel 11
+├── backend/                    # Aplikasi API Laravel 13
 ├── frontend/                   # Aplikasi Web SPA Vue 3 + Vite
 ├── docs/                       # Dokumentasi teknis lengkap
 ├── docker-compose.yml          # Definisi kontainer

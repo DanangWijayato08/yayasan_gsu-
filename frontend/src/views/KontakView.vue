@@ -5,7 +5,7 @@ import Contact from '../components/sections/Contact.vue'
 <template>
   <div>
     <section class="page-header">
-      <div class="container" v-reveal="'up'">
+      <div class="container">
         <span class="eyebrow"><i class="fa-solid fa-envelope-open-text"></i> Layanan Informasi</span>
         <h1>Hubungi Kami</h1>
         <p>Ada pertanyaan seputar donasi, konfirmasi program, atau ingin bersinergi menjadi relawan? Kami siap melayani.</p>

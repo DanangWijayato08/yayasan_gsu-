@@ -5,7 +5,7 @@ import Gallery from '../components/sections/Gallery.vue'
 <template>
   <div>
     <section class="page-header">
-      <div class="container" v-reveal="'up'">
+      <div class="container">
         <span class="eyebrow"><i class="fa-solid fa-images"></i> Dokumentasi Aktivitas</span>
         <h1>Jejak Langkah Kebaikan</h1>
         <p>Transparansi dalam setiap pergerakan. Saksikan bagaimana amanah dan kontribusi Anda sampai kepada mereka yang berhak.</p>

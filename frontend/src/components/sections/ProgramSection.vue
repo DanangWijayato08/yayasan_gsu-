@@ -59,8 +59,8 @@ const filtered = computed(() => {
     </div>
 
     <div class="psection__grid">
-      <div v-for="(p, i) in filtered" :key="p.id" v-reveal:[i*80]="'up'">
-        <ProgramCard :program="p" />
+      <div v-for="(p, i) in filtered" :key="p.id">
+        <ProgramCard :program="p" :eager="i < 3" />
       </div>
     </div>
 

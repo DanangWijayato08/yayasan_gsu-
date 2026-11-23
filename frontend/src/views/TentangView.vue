@@ -6,7 +6,7 @@ import Stats from '../components/common/Stats.vue'
 <template>
   <div>
     <section class="page-header">
-      <div class="container" v-reveal="'up'">
+      <div class="container">
         <span class="eyebrow"><i class="fa-solid fa-landmark"></i> Tentang Lembaga</span>
         <h1>Mengenal Gerakan Sedekah Umat</h1>
         <p>Yayasan yang lahir dari keyakinan bahwa kebaikan kolektif mampu membangun perubahan nyata dan berkelanjutan.</p>

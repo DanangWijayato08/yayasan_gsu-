@@ -4,6 +4,7 @@ import ProgressBar from '../common/ProgressBar.vue'
 
 const props = defineProps({
   program: { type: Object, required: true },
+  eager: { type: Boolean, default: false },
 })
 
 function formatRupiah(value) {
@@ -28,7 +29,11 @@ const catStyle = computed(() => catColors[props.program.category] || { bg: '#F6F
       <img
         :src="program.image || fallbackImage"
         :alt="program.title"
-        loading="lazy"
+        width="400"
+        height="300"
+        :loading="eager ? 'eager' : 'lazy'"
+        :fetchpriority="eager ? 'high' : 'auto'"
+        decoding="async"
         @error="$event.target.src = fallbackImage"
       />
       <div class="pcard__media-overlay"></div>
@@ -59,6 +64,7 @@ const catStyle = computed(() => catColors[props.program.category] || { bg: '#F6F
       <router-link
         :to="program.slug ? `/program/${program.slug}` : '/donasi'"
         class="btn btn-outline pcard__btn"
+        :aria-label="'Lihat detail program ' + program.title"
       >
         Lihat Detail <i class="fa-solid fa-arrow-right"></i>
       </router-link>

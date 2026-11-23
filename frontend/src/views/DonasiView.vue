@@ -5,7 +5,7 @@ import DonationSection from '../components/sections/DonationSection.vue'
 <template>
   <div>
     <section class="page-header page-header--center">
-      <div class="container" v-reveal="'up'">
+      <div class="container">
         <span class="eyebrow"><i class="fa-solid fa-hand-holding-heart"></i> Donasi Amanah</span>
         <h1>Setiap Rupiah Membawa Harapan</h1>
         <p>Pilih nominal, lengkapi data, dan pilih metode pembayaran — donasi Anda akan tersalurkan dengan transparan.</p>
